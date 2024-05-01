@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Diagnostics.Metrics;
 using Library_10;
 using System.Collections.Generic;
@@ -21,78 +21,117 @@ namespace Лаба12_часть1
 
         static void AddElementToList(MyList<Library_10.Instrument> list) //функция добавления нового элемента в список
         {
+            if (list.Count == 0) throw new ArgumentException("empty list"); //если список пуст -> выводим ошибку
             sbyte place = InputSbyteNumber("Введите номер для нового элемента");
-            Library_10.Instrument tool = new Library_10.Instrument();
+            HandTool tool = new HandTool(); //генерируем добавляемый элемент
             tool.RandomInit();
-            if (place == 0 || place > list.Count+1) throw new Exception("Неправильно введено число");
-            else list.AddNodeAtIndex(place, tool);
+            list.AddNodeAtIndex(place, tool); //добавляем его в список
+            Console.WriteLine("Изменим название сгенерированного инструмента:"); //демонстрация того, что на новый элемент нет двойной ссылки
+            tool.Name = "RRR";
+            Console.WriteLine(tool.ToString());
+            Console.WriteLine("Продемонстрируем, что после изменения названия инструмента, элемент, добавленный в список, не изменилася:");
+            list.PrintList();
             Console.WriteLine("Операция завершена");
         }
 
         static void DeleteElementFromList(MyList<Library_10.Instrument> list) //метод удаления элемента из списка
         {
+            if (list.Count == 0) throw new ArgumentException("empty list"); //ошибка если список пустой
             sbyte place = InputSbyteNumber("Введите номер для удаляемого элемента");
-            if (list.Count == 0) throw new Exception("Операция удаления для пустого списка невозможна");
-            if (place == 0 || place > list.Count) throw new Exception("Неправильно введено число");
-            else list.RemoveItem(place);
+            list.RemoveItem(place); 
             Console.WriteLine("Операция завершена");
         }
 
         static void Clear(ref MyList<Library_10.Instrument> list) //метод очищения памяти 
         {
             list = null; 
-            GC.Collect(); //метод, который позволяет сборщику мусора выполнить сборку 
+            GC.Collect(); //метод, который позволяет сборщику мусора выполнить сборку мусора
         }
 
         static void Main(string[] args)
         {
-            sbyte answer3, answerGlobal, answer1, answer2; //объявление переменных, которые отвечают за выбранный пункт меню
-            MyList<Library_10.Instrument> list = new MyList<Library_10.Instrument>();
+            sbyte answer1; //объявление переменной, которая отвечает за выбранный пункт меню
+            MyList<Library_10.Instrument> list = new MyList<Library_10.Instrument>(); //создание списка
             do
             {
-                Console.WriteLine("1. Сформировать двунаправленный список и вывести его на экран");
+                Console.WriteLine("1. Сформировать двунаправленный список и вывести его на экран"); //меню
                 Console.WriteLine("2. Добавить в список элемент с заданным номером");
                 Console.WriteLine("3. Вывести список");
                 Console.WriteLine("4. Удалить из списка элемент с заданным номером");
                 Console.WriteLine("5. Выполнить глубокое копирование списка");
                 Console.WriteLine("6. Удалить список из памяти");
                 Console.WriteLine("7. Выход");
-                answer1 = InputSbyteNumber();
+                answer1 = InputSbyteNumber(); //считываем выбранный пункт меню
 
                 switch (answer1)
                 {
                     case 1: //формирование двунаправленного списка и вывод на экран
                         {
                             sbyte size = InputSbyteNumber("Введите размер списка");
-                            list = new MyList<Library_10.Instrument>(size); //ввод размера списка типа sbyte
-                            Console.WriteLine("Список сформирован");
+                            try
+                            {
+                                list = new MyList<Library_10.Instrument>(size); //ввод размера списка типа sbyte
+                                Console.WriteLine("Список сформирован");
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Выполнение провалено: {e.Message}");
+                            }
                             break;
                         }
                     case 2: //добавление в список элемента с заданным номером
                         {
-                            AddElementToList(list);
+                            try
+                            {
+                                AddElementToList(list);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Processing failed: {e.Message}");
+                            }
                             break;
                         }
                     case 3: //вывод списка
                         {
-                            Console.WriteLine(list.Count);
-                            list.PrintList();
+                            try
+                            {
+                                Console.WriteLine(list.Count);
+                                list.PrintList();
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Выполнение провалено: {e.Message}");
+                            }
                             break;
                         }
                     case 4: //удаление из списка элемента с заданным номером
                         {
-                            DeleteElementFromList(list);
+                            try
+                            {
+                                DeleteElementFromList(list);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Выполнение провалено: {e.Message}");
+                            }
                             break;
                         }
                     case 5: //глубокое копирование списка
                         {
-                            MyList<Library_10.Instrument> clone = list.Clone();
-                            clone.PrintList();
-                            DeleteElementFromList(list);
-                            Console.WriteLine("Список после удаления:");
-                            list.PrintList();
-                            Console.WriteLine("Клон после удаления:");
-                            clone.PrintList();
+                            try
+                            {
+                                MyList<Library_10.Instrument> clone = list.Clone();
+                                clone.PrintList();
+                                DeleteElementFromList(list);
+                                Console.WriteLine("Список после удаления:");
+                                list.PrintList();
+                                Console.WriteLine("Клон после удаления:");
+                                clone.PrintList();
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Выполнение провалено: {e.Message}");
+                            }
                             break;
                         }
                     case 6: //удаление списка из памяти
@@ -111,7 +150,7 @@ namespace Лаба12_часть1
                             break;
                         }
                 }
-            } while (answer1 != 7); //цикл повторяется пока пользователь не введет число 6
+            } while (answer1 != 7); //цикл повторяется пока пользователь не введет число 7
         }
     }
 }
