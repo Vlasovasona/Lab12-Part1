@@ -1,4 +1,4 @@
-﻿using Library_10;
+using Library_10;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,20 +17,6 @@ namespace Лаба12_часть1
         sbyte count = 0; //счетчик элементов в списке
 
         public sbyte Count => count;
-
-        public Point<T> MakeRandomData() //создание элемента типа <T>
-        {
-            T data = new T(); //должно иметь конструктор без параметров (см. строка 10)
-            data.RandomInit(); //рандомно заполняем (см. строка 10)
-            return new Point<T>(data); //создаем новый элемент 
-        }
-
-        public T MakeRandomItem() //создание информационного поля
-        {
-            T data = new T();
-            data.RandomInit();
-            return data;
-        }
 
         public void AddToBegin(T item) //добавление в начало списка
         {
@@ -68,8 +54,10 @@ namespace Лаба12_часть1
             }
         }
 
-        public void AddNodeAtIndex(sbyte index, T item) //добавление элемента по ключу
+        public void AddNodeAtIndex(sbyte index, T newData) //добавление элемента по ключу
         {
+            T item = (T)newData.Clone();
+            if (index > Count + 1 || index <= 0) throw new ArgumentException("incorrect number");
             Point<T> newNode = new Point<T>(item); //создание нового элемента списка
             Point<T>? current = beg; //текущий элемент - первый
             Point<T>? temp = null; //временная переменная для хранения текущего элемента
@@ -89,7 +77,7 @@ namespace Лаба12_часть1
             {
                 temp = current; //сохраняем текущий элемент как предыдущий
                 current = current.Next; //переходим к следующему 
-                kol++; 
+                kol++;
             }
 
             // Добавляем новый элемент в середину списка
@@ -98,7 +86,7 @@ namespace Лаба12_часть1
                 temp.Next = newNode; //связываем предудыщий с новым
                 newNode.Pred = temp; //связываем новый с предыдущим
                 newNode.Next = current; //связываем новый с текущим
-                if (current != null) 
+                if (current != null)
                 {
                     current.Pred = newNode; //обновляем связь текущего с новым
                 }
@@ -122,35 +110,22 @@ namespace Лаба12_часть1
 
         public MyList(sbyte size) //конструктор с параметром (размер списка)
         {
-            if (size <= 0) throw new Exception("Размер не может быть нулевым или отрицательным"); 
-            beg = MakeRandomData(); //создали первый элемент
+            if (size <= 0) throw new ArgumentException("Размер не может быть нулевым или отрицательным");
+            beg = Point<T>.MakeRandomData(); //создали первый элемент
             end = beg; //изначально в списке один элемент, поэтому beg и end установлены на единственном элементе
             for (int i = 1; i < size; i++) //далее заполняем список элементами в количестве size
             {
-                T newItem = MakeRandomItem(); //генерируем значение нового элемента
+                T newItem = Point<T>.MakeRandomItem();
                 AddToEnd(newItem); //добавляем его в конец
             }
             count = size; 
         }
 
-        //public MyList(T[] collection) //конструктор на основе коллекции, принцип работы не отличается от конструктора с параметром 
-        //{
-        //    if (collection == null) throw new Exception("empty collection: null");
-        //    if (collection.Length == 0) throw new Exception("empty collection");
-        //    T newData = (T)collection[0].Clone();
-        //    beg = new Point<T>(newData);
-        //    end = beg;
-        //    for (int i = 0; i < collection.Length; i++)
-        //    {
-        //        AddToEnd(collection[i]);
-        //    }
-        //}
-
         public void PrintList() //метод для вывода элементов
         {
             if (count == 0) Console.WriteLine("the list is empty");
             Point<T>? current = beg; //присвоили переменной current ссылку на начальный элемент
-            for (int i = 0; current != null; i++) //пока не долшли до конца списка
+            while (current != null) //пока не долшли до конца списка
             {
                 Console.WriteLine(current); //выводим current
                 current = current.Next; //передвигаем current на следующий элемент
@@ -162,7 +137,7 @@ namespace Лаба12_часть1
             Point<T>? current = beg;
             while (current != null)
             {
-                if (current.Data == null) throw new Exception("Data is null");
+                if (current.Data == null) throw new ArgumentException("Data is null");
                 if (current.Data.Equals(item)) return current; //если элемент найден, возвращаем значение current
                 current = current.Next; //иначе передвигаем current на следующий элемент
             }
@@ -171,7 +146,8 @@ namespace Лаба12_часть1
 
         public bool RemoveItem(sbyte index) //метода для удаления элемента списка по ключу
         {
-            if (beg == null) throw new Exception("the empty list"); //проверка на пустоту списка
+            //if (beg == null) throw new Exception("empty list");
+            if (index <= 0 || index > Count) throw new ArgumentException("Неправильно введено число");
             count--; //уменьшаем количество элементов в списке на 1
             index--;
             Point<T>? current = beg; 
@@ -211,20 +187,19 @@ namespace Лаба12_часть1
             return true;
         }
 
-        public MyList<T> Clone()
+        public MyList<T> Clone() //метод для клонирования списка
         {
-            int size = count;
-            if (size <= 0) throw new Exception("Невозможно провести операцию клонирования пустой коллекции"); 
+            int size = count; 
+            if (size <= 0) throw new ArgumentException("Невозможно провести операцию клонирования пустой коллекции"); 
             else
             {
-                MyList<T> clone = new MyList<T>();
-                Point<T>? current = beg;
+                MyList<T> clone = new MyList<T>(); //создаем новый список
+                Point<T>? current = beg; //текущий = голова
 
-                while (current != null)
+                while (current != null) //пока текущий != пустой ссылке
                 {
-                    T newData = (T)current.Data.Clone();
-                    clone.AddToEnd(newData);
-                    current = current.Next;
+                    clone.AddToEnd(current.Data); //т.к. в методе AddToEnd уже прописано клонирование добавляемого объекста, в методе Clone не нужно прописывать еще одно
+                    current = current.Next; //переход к следующему элементу
                 }
                 return clone;
             }
@@ -232,15 +207,15 @@ namespace Лаба12_часть1
 
         public T GetPointAtIndex(int index) //вспомогательный метод для тестирования добавления элемента в список
         {
-            if (index < 0 || index >= count) throw new Exception("Invalid index");
-            Point<T>? current = beg;
-            int currentIndex = 0;
-            while (current != null && currentIndex < index) 
+            if (index < 0 || index >= count) throw new ArgumentException("Invalid index");
+            Point<T>? current = beg; //текущий элемент равен голове списка
+            int currentIndex = 0; //счетчик индекса
+            while (current != null && currentIndex < index)   //пока не дошли до необходимого индекса
             {
-                current = current.Next;
-                currentIndex++;
+                current = current.Next; //сдвигаемся на элемент вперед
+                currentIndex++; //увеличиваем счетчик
             }
-            return current.Data;
+            return current.Data; //возвращаем значение найденного элемента
         }
     }
 }
