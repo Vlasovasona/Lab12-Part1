@@ -84,21 +84,6 @@ namespace Первая_часть
         }
 
         [TestMethod]
-        public void PointStringTest() //проверка метода ToString для Point<T>
-        {
-            int value = 5;
-            Point<int> node = new Point<int>(value);
-            Assert.AreEqual("5", node.ToString());
-        }
-
-        [TestMethod]
-        public void PointEmptyStringTest() //проверка метода ToString для пустого Point
-        {
-            Point<int> node = new Point<int>();
-            Assert.AreEqual("0", node.ToString());
-        }
-
-        [TestMethod]
         public void ListConstructException() //проверка исключения констркутора списка при попытке создать пустой список
         {
             Assert.ThrowsException<Exception>(() => {
@@ -147,6 +132,21 @@ namespace Первая_часть
         {
             MyList<Library_10.Instrument> list = new MyList<Library_10.Instrument>();
             Assert.ThrowsException<Exception>(() => { list.RemoveItem(6); });
+        }
+
+        [TestMethod]
+        public void Point_ToString() //проверка метод ToString для заполненного Point
+        {
+            Instrument t = new Instrument("WW", 12);
+            Point<Instrument> p = new Point<Instrument>(t);
+            Assert.AreEqual(t.ToString(), p.ToString());
+        }
+
+        [TestMethod]
+        public void Point_EmptyElement () //проверка конструктора для пустого Point
+        {
+            Point<Instrument> p = new Point<Instrument>();
+            Assert.IsNull(p.Next);
         }
     }
 }
